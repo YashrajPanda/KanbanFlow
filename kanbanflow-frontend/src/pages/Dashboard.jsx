@@ -81,15 +81,15 @@ const Dashboard = () => {
             <main className="flex-1 w-full max-w-6xl px-6 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 mb-2">
+                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 mb-2">
                             Your Boards
                         </h1>
-                        <p className="text-slate-400">Manage your projects and tasks across different boards.</p>
+                        <p className="text-slate-600 dark:text-slate-400">Manage your projects and tasks across different boards.</p>
                     </div>
 
                     <button
                         onClick={() => setIsCreating(true)}
-                        className="flex items-center gap-2 bg-gradient-to-r from-neonBlue to-fuchsia hover:from-blue-600 hover:to-purple-600 px-5 py-2.5 rounded-xl font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(217,70,239,0.4)] transition-all active:scale-95"
+                        className="flex items-center gap-2 bg-gradient-to-r from-neonBlue to-fuchsia hover:from-blue-600 hover:to-purple-600 px-5 py-2.5 rounded-xl font-semibold text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(217,70,239,0.4)] transition-all active:scale-95"
                     >
                         <Plus className="w-5 h-5" />
                         New Board
@@ -98,26 +98,26 @@ const Dashboard = () => {
 
                 {isCreating && (
                     <form onSubmit={handleCreateBoard} className="glass-card mb-8 p-6 rounded-2xl border border-neonBlue/30 animate-in zoom-in-95 duration-200">
-                        <h3 className="text-xl font-bold mb-4">Create New Board</h3>
+                        <h3 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">Create New Board</h3>
                         <div className="flex gap-4">
                             <input
                                 type="text"
                                 value={newBoardName}
                                 onChange={(e) => setNewBoardName(e.target.value)}
                                 placeholder="E.g., Website Redesign"
-                                className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-neonBlue focus:ring-1 focus:ring-neonBlue"
+                                className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/10 rounded-xl px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-neonBlue focus:ring-1 focus:ring-neonBlue"
                                 autoFocus
                             />
                             <button
                                 type="submit"
-                                className="bg-white text-slate-900 font-bold px-6 py-2 rounded-xl hover:bg-slate-200 transition"
+                                className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold px-6 py-2 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-200 transition"
                             >
                                 Create
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setIsCreating(false)}
-                                className="bg-transparent border border-white/20 text-white font-semibold px-6 py-2 rounded-xl hover:bg-white/10 transition"
+                                className="bg-transparent border border-slate-400 dark:border-white/20 text-slate-700 dark:text-white font-semibold px-6 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition"
                             >
                                 Cancel
                             </button>
@@ -159,7 +159,7 @@ const Dashboard = () => {
                                                 <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRenamingBoardId(null); }} className="text-sm border border-white/20 px-2 py-1 rounded hover:bg-white/10 transition shrink-0">Cancel</button>
                                             </form>
                                         ) : (
-                                            <h2 className="text-xl font-bold truncate pr-2">{board.boardName}</h2>
+                                            <h2 className="text-xl font-bold truncate pr-2 text-slate-900 dark:text-white">{board.boardName}</h2>
                                         )}
                                     </div>
 
@@ -184,9 +184,9 @@ const Dashboard = () => {
                                     )}
                                 </div>
 
-                                <div className="text-slate-400 text-sm flex items-center justify-between relative z-10">
+                                <div className="text-slate-700 dark:text-slate-400 text-sm flex items-center justify-between relative z-10">
                                     <span>Created {new Date(board.createdAt).toLocaleDateString()}</span>
-                                    <div className="font-semibold text-slate-300 bg-white/5 px-2 py-1 rounded">
+                                    <div className="font-semibold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-white/5 px-2 py-1 rounded">
                                         Open Board &rarr;
                                     </div>
                                 </div>
@@ -194,7 +194,7 @@ const Dashboard = () => {
                         ))}
 
                         {boards.length === 0 && !isCreating && (
-                            <div className="col-span-full py-12 text-center text-slate-400 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
+                            <div className="col-span-full py-12 text-center text-slate-500 dark:text-slate-400 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl bg-white/50 dark:bg-white/5">
                                 <p>No boards found. Create one to get started!</p>
                             </div>
                         )}
