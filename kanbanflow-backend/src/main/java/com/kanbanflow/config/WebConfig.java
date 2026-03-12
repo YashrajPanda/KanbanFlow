@@ -9,9 +9,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // Allow frontend port (e.g. 5173 for Vite)
+        // Allow frontend port (e.g. 5173 for Vite) and Remote URLs
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173")
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
