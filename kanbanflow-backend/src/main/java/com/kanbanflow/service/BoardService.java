@@ -14,6 +14,7 @@ import java.util.Optional;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final com.kanbanflow.repository.TaskRepository taskRepository;
 
     public List<Board> getAllBoards() {
         return boardRepository.findAll();
@@ -28,5 +29,19 @@ public class BoardService {
             board.setCreatedAt(LocalDateTime.now());
         }
         return boardRepository.save(board);
+    }
+
+    public Board updateBoard(String id, Board updatedBoard) {
+        return boardRepository.findById(id).map(board -> {
+            board.setBoardName(updatedBoard.getBoardName());
+            return boardRepository.save(board);
+        }).orElseThrow(() -> new RuntimeException("Board not found"));
+    }
+
+    public void deleteBoard(String id) {
+        // Delete all tasks associated with this board
+        java.util.List<com.kanbanflow.model.Task> tasksToDelete = taskRepository.findByBoardId(id);
+        taskRepository.deleteAll(tasksToDelete);
+        boardRepository.deleteById(id);
     }
 }

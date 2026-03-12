@@ -31,4 +31,19 @@ public class BoardController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Board> updateBoard(@PathVariable String id, @RequestBody Board board) {
+        try {
+            return ResponseEntity.ok(boardService.updateBoard(id, board));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBoard(@PathVariable String id) {
+        boardService.deleteBoard(id);
+        return ResponseEntity.noContent().build();
+    }
 }
