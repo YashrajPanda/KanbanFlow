@@ -10,6 +10,8 @@ const api = axios.create({
 export const getBoards = () => api.get('/boards');
 export const getBoard = (id) => api.get(`/boards/${id}`);
 export const createBoard = (boardData) => api.post('/boards', boardData);
+export const updateBoard = (id, boardData) => api.put(`/boards/${id}`, boardData);
+export const deleteBoard = (id) => api.delete(`/boards/${id}`);
 
 export const getTasks = (boardId) => api.get(`/tasks/board/${boardId}`);
 export const createTask = (taskData) => api.post('/tasks', taskData);

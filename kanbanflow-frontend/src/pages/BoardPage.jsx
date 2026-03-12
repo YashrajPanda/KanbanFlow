@@ -144,7 +144,7 @@ const BoardPage = () => {
 
     if (loading) {
         return (
-            <div className="h-screen flex flex-col items-center bg-slate-900">
+            <div className="h-screen flex flex-col items-center">
                 <Navbar />
                 <div className="flex-1 flex justify-center items-center">
                     <Loader2 className="w-12 h-12 text-neonBlue animate-spin" />
@@ -153,10 +153,10 @@ const BoardPage = () => {
         );
     }
 
-    if (!board) return <div className="text-white text-center mt-20 text-xl font-semibold">Board not found</div>;
+    if (!board) return <div className="dark:text-white text-slate-900 text-center mt-20 text-xl font-semibold">Board not found</div>;
 
     return (
-        <div className="h-screen flex flex-col bg-slate-900 pb-0 overflow-hidden">
+        <div className="h-screen flex flex-col pb-0 overflow-hidden">
             <Navbar />
 
             <main className="flex-1 px-4 sm:px-6 md:px-8 overflow-hidden flex flex-col max-w-[1600px] w-full mx-auto">
@@ -165,7 +165,7 @@ const BoardPage = () => {
                         <Link to="/" className="text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1 w-fit transition-colors">
                             <ArrowLeft className="w-4 h-4" /> Back to Boards
                         </Link>
-                        <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-slate-400">
                             {board.boardName}
                         </h1>
                     </div>
@@ -208,13 +208,13 @@ const BoardPage = () => {
                                                 onBlur={() => {
                                                     if (!newTaskTitle) setIsCreatingNewTask(false);
                                                 }}
-                                                className="w-full bg-slate-800 border-2 border-neonBlue rounded-xl px-4 py-3 focus:outline-none text-slate-100 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                                                className="w-full bg-white dark:bg-slate-800 border-2 border-neonBlue rounded-xl px-4 py-3 focus:outline-none text-slate-900 dark:text-slate-100 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                                             />
                                         </form>
                                     ) : (
                                         <button
                                             onClick={() => handleQuickCreateMode(columnId)}
-                                            className="mt-4 flex items-center gap-2 justify-center py-3 rounded-xl border-2 border-dashed border-white/10 text-slate-400 font-semibold hover:bg-white/5 hover:text-white hover:border-white/30 transition-all group"
+                                            className="mt-4 flex items-center gap-2 justify-center py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-white/10 text-slate-500 dark:text-slate-400 font-semibold hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white dark:hover:border-white/30 hover:border-slate-400 transition-all group"
                                         >
                                             <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" /> Add Task
                                         </button>

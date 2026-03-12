@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { getBoards, createBoard } from '../services/api';
-import { Layout, Plus, Loader2 } from 'lucide-react';
+import { getBoards, createBoard, updateBoard, deleteBoard } from '../services/api';
+import { Layout, Plus, Loader2, Edit2, Trash2 } from 'lucide-react';
 
 const Dashboard = () => {
     const [boards, setBoards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [newBoardName, setNewBoardName] = useState('');
+    const [renamingBoardId, setRenamingBoardId] = useState(null);
+    const [editBoardName, setEditBoardName] = useState('');
 
     useEffect(() => {
         fetchBoards();
@@ -36,6 +38,39 @@ const Dashboard = () => {
             setIsCreating(false);
         } catch (error) {
             console.error('Failed to create board:', error);
+        }
+    };
+
+    const handleRenameClick = (e, board) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setRenamingBoardId(board.id);
+        setEditBoardName(board.boardName);
+    };
+
+    const handleRenameSubmit = async (e, boardId) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!editBoardName.trim()) return;
+        try {
+            await updateBoard(boardId, { boardName: editBoardName });
+            setBoards(boards.map(b => b.id === boardId ? { ...b, boardName: editBoardName } : b));
+            setRenamingBoardId(null);
+        } catch (error) {
+            console.error('Failed to rename board:', error);
+        }
+    };
+
+    const handleDeleteClick = async (e, boardId) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.confirm("Are you sure you want to delete this board? All tasks will be permanently deleted.")) {
+            try {
+                await deleteBoard(boardId);
+                setBoards(boards.filter(b => b.id !== boardId));
+            } catch (error) {
+                console.error('Failed to delete board:', error);
+            }
         }
     };
 
@@ -105,11 +140,48 @@ const Dashboard = () => {
                                 {/* Decorative blob */}
                                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-fuchsia/20 rounded-full blur-3xl group-hover:bg-neonBlue/30 transition-colors duration-500"></div>
 
-                                <div className="flex items-center gap-4 mb-4 relative z-10">
-                                    <div className="p-3 bg-slate-800 rounded-xl border border-white/5">
-                                        <Layout className="w-6 h-6 text-neonBlue group-hover:text-fuchsia transition-colors" />
+                                <div className="flex items-center justify-between mb-4 relative z-10 w-full">
+                                    <div className="flex items-center gap-4 flex-1">
+                                        <div className="p-3 bg-slate-800 rounded-xl border border-white/5 shrink-0">
+                                            <Layout className="w-6 h-6 text-neonBlue group-hover:text-fuchsia transition-colors" />
+                                        </div>
+                                        {renamingBoardId === board.id ? (
+                                            <form onSubmit={(e) => handleRenameSubmit(e, board.id)} className="flex items-center gap-2 w-full">
+                                                <input 
+                                                    type="text" 
+                                                    value={editBoardName} 
+                                                    onChange={(e) => setEditBoardName(e.target.value)}
+                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                                    className="w-full bg-slate-900 border border-white/20 rounded px-2 py-1 text-white focus:outline-none focus:border-neonBlue"
+                                                    autoFocus
+                                                />
+                                                <button type="submit" onClick={(e) => e.stopPropagation()} className="text-sm bg-neonBlue/20 text-neonBlue px-2 py-1 rounded hover:bg-neonBlue hover:text-white transition shrink-0">Save</button>
+                                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRenamingBoardId(null); }} className="text-sm border border-white/20 px-2 py-1 rounded hover:bg-white/10 transition shrink-0">Cancel</button>
+                                            </form>
+                                        ) : (
+                                            <h2 className="text-xl font-bold truncate pr-2">{board.boardName}</h2>
+                                        )}
                                     </div>
-                                    <h2 className="text-xl font-bold">{board.boardName}</h2>
+
+                                    {/* Action Buttons */}
+                                    {renamingBoardId !== board.id && (
+                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+                                            <button 
+                                                onClick={(e) => handleRenameClick(e, board)}
+                                                className="p-2 bg-slate-800/80 hover:bg-blue-500/20 text-slate-300 hover:text-blue-400 rounded-lg transition"
+                                                title="Rename Board"
+                                            >
+                                                <Edit2 className="w-4 h-4" />
+                                            </button>
+                                            <button 
+                                                onClick={(e) => handleDeleteClick(e, board.id)}
+                                                className="p-2 bg-slate-800/80 hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg transition"
+                                                title="Delete Board"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="text-slate-400 text-sm flex items-center justify-between relative z-10">
