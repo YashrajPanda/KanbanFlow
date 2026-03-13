@@ -20,6 +20,10 @@ public class BoardService {
         return boardRepository.findAll();
     }
 
+    public List<Board> getBoardsByUserId(String userId) {
+        return boardRepository.findByMembersContaining(userId);
+    }
+
     public Optional<Board> getBoardById(String id) {
         return boardRepository.findById(id);
     }

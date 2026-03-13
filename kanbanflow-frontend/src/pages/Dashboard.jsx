@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { getBoards, createBoard, updateBoard, deleteBoard } from '../services/api';
+import { getBoardsByUserId, createBoard, updateBoard, deleteBoard } from '../services/api';
 import { Layout, Plus, Loader2, Edit2, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
     const [boards, setBoards] = useState([]);
@@ -11,14 +12,17 @@ const Dashboard = () => {
     const [newBoardName, setNewBoardName] = useState('');
     const [renamingBoardId, setRenamingBoardId] = useState(null);
     const [editBoardName, setEditBoardName] = useState('');
+    const { user } = useAuth();
 
     useEffect(() => {
-        fetchBoards();
-    }, []);
+        if (user) {
+            fetchBoards();
+        }
+    }, [user]);
 
     const fetchBoards = async () => {
         try {
-            const { data } = await getBoards();
+            const { data } = await getBoardsByUserId(user.id);
             setBoards(data);
         } catch (error) {
             console.error('Failed to fetch boards:', error);
@@ -32,7 +36,7 @@ const Dashboard = () => {
         if (!newBoardName.trim()) return;
 
         try {
-            const { data } = await createBoard({ boardName: newBoardName });
+            const { data } = await createBoard({ boardName: newBoardName, members: [user.id] });
             setBoards([...boards, data]);
             setNewBoardName('');
             setIsCreating(false);

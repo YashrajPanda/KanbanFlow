@@ -4,8 +4,8 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import Navbar from '../components/Navbar';
 import BoardColumn from '../components/BoardColumn';
 import TaskModal from '../components/TaskModal';
-import { getBoard, getTasks, updateTaskStatus, getUsers, createTask, updateTask, deleteTask } from '../services/api';
-import { ArrowLeft, Loader2, Plus } from 'lucide-react';
+import { getBoard, getTasks, updateTaskStatus, getUsers, createTask, updateTask, deleteTask, triggerAiAudit } from '../services/api';
+import { ArrowLeft, Loader2, Plus, Zap } from 'lucide-react';
 
 const COLUMNS = ['TODO', 'IN_PROGRESS', 'DONE'];
 
@@ -142,6 +142,18 @@ const BoardPage = () => {
         }
     };
 
+    const handleTriggerAudit = async () => {
+        try {
+            setLoading(true);
+            await triggerAiAudit();
+            await fetchBoardData(); // Refresh to get updated tasks
+        } catch (error) {
+            console.error('Failed to trigger AI audit:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="h-screen flex flex-col items-center">
@@ -170,17 +182,28 @@ const BoardPage = () => {
                         </h1>
                     </div>
 
-                    <div className="hidden sm:flex -space-x-3 items-center">
-                        {users.slice(0, 4).map(u => (
-                            <div key={u.id} className="w-10 h-10 rounded-full border-2 border-slate-900 overflow-hidden bg-slate-800 shadow-md">
-                                <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${u.name}&backgroundColor=0f172a,1e1b4b,312e81`} alt={u.name} className="w-full h-full object-cover" />
-                            </div>
-                        ))}
-                        {users.length > 4 && (
-                            <div className="w-10 h-10 rounded-full border-2 border-slate-900 font-bold bg-slate-800 text-xs flex items-center justify-center text-slate-300 shadow-md">
-                                +{users.length - 4}
-                            </div>
-                        )}
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={handleTriggerAudit}
+                            disabled={loading}
+                            className="hidden sm:flex items-center gap-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/50 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                            Trigger AI Audit
+                        </button>
+                        
+                        <div className="hidden sm:flex -space-x-3 items-center">
+                            {users.slice(0, 4).map(u => (
+                                <div key={u.id} className="w-10 h-10 rounded-full border-2 border-slate-900 overflow-hidden bg-slate-800 shadow-md">
+                                    <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${u.name}&backgroundColor=0f172a,1e1b4b,312e81`} alt={u.name} className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                            {users.length > 4 && (
+                                <div className="w-10 h-10 rounded-full border-2 border-slate-900 font-bold bg-slate-800 text-xs flex items-center justify-center text-slate-300 shadow-md">
+                                    +{users.length - 4}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </header>
 

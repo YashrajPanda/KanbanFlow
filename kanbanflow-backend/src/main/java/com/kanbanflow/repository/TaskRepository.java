@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends MongoRepository<Task, String> {
     List<Task> findByBoardId(String boardId);
+    List<Task> findByStatusAndDueDateBefore(com.kanbanflow.model.TaskStatus status, java.time.LocalDateTime dueDate);
 }

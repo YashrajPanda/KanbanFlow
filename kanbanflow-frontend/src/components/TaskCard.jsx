@@ -1,7 +1,8 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, Sparkles } from 'lucide-react';
 import UserAvatar from './UserAvatar';
+import { expandTaskScope } from '../services/api';
 
 const priorityColors = {
     LOW: 'border-l-4 border-l-emerald-400',
@@ -22,6 +23,23 @@ const TaskCard = ({ task, index, user, onClick }) => {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
+    const [isExpanding, setIsExpanding] = React.useState(false);
+
+    const handleExpandAction = async (e) => {
+        e.stopPropagation(); // prevent opening modal
+        setIsExpanding(true);
+        try {
+            const response = await expandTaskScope(task.id, task.title);
+            if (onClick) {
+                 window.location.reload(); 
+            }
+        } catch (error) {
+            console.error("Failed to expand scope", error);
+        } finally {
+            setIsExpanding(false);
+        }
+    };
+
     return (
         <Draggable draggableId={task.id} index={index}>
             {(provided, snapshot) => (
@@ -40,11 +58,26 @@ const TaskCard = ({ task, index, user, onClick }) => {
                         <h4 className="font-semibold text-slate-100 group-hover:text-neonBlue transition-colors line-clamp-2">
                             {task.title}
                         </h4>
+                        {task.labels && task.labels.includes("BLOCKER") && (
+                            <span className="bg-red-500/20 text-red-400 border border-red-500/50 text-[10px] uppercase font-bold px-2 py-0.5 rounded ml-2 whitespace-nowrap">
+                                BLOCKER
+                            </span>
+                        )}
                     </div>
 
                     <p className="text-slate-400 text-sm line-clamp-2 mb-4">
                         {task.description}
                     </p>
+
+                    {(!task.subtasks || task.subtasks.length === 0) && (
+                        <button 
+                            onClick={handleExpandAction}
+                            disabled={isExpanding}
+                            className="w-full mb-4 text-xs bg-fuchsia/20 hover:bg-fuchsia/40 text-fuchsia border border-fuchsia/50 px-2 py-1.5 rounded-lg transition-colors flex justify-center items-center gap-1"
+                        >
+                            {isExpanding ? "Expanding..." : <><Sparkles className="w-3 h-3"/> Expand Scope (AI)</>}
+                        </button>
+                    )}
 
                     <div className="flex items-center justify-between mt-auto">
                         <div className="flex gap-2 items-center">

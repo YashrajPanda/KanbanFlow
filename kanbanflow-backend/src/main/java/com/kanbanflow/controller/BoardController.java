@@ -20,6 +20,11 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getAllBoards());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Board>> getBoardsByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(boardService.getBoardsByUserId(userId));
+    }
+
     @PostMapping
     public ResponseEntity<Board> createBoard(@RequestBody Board board) {
         return ResponseEntity.ok(boardService.createBoard(board));

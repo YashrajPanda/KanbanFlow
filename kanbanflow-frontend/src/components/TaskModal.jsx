@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, AlignLeft, User as UserIcon, AlertCircle } from 'lucide-react';
+import { expandTaskScope, getTaskComments } from '../services/api';
+import { X, Calendar, AlignLeft, User as UserIcon, AlertCircle, MessageSquare } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 
 const TaskModal = ({ task, isOpen, onClose, users, onSave, onDelete }) => {
@@ -7,6 +8,43 @@ const TaskModal = ({ task, isOpen, onClose, users, onSave, onDelete }) => {
 
     const [editMode, setEditMode] /* intentionally unused update func for pure UI, but we can make it editable */ = useState(false);
     const [formData, setFormData] = useState({ ...task });
+    const [isExpanding, setIsExpanding] = useState(false);
+    const [comments, setComments] = useState([]);
+
+    // Update formdata when task changes
+    useEffect(() => {
+        setFormData({ ...task });
+        if (task && task.id) {
+            fetchComments(task.id);
+        }
+    }, [task]);
+
+    const fetchComments = async (taskId) => {
+        try {
+            const res = await getTaskComments(taskId);
+            setComments(res.data);
+        } catch (error) {
+            console.error("Failed to fetch comments", error);
+        }
+    };
+
+    const handleExpandScope = async () => {
+        setIsExpanding(true);
+        try {
+            const response = await expandTaskScope(task.id, formData.title);
+            setFormData(prev => ({ 
+                ...prev, 
+                subtasks: response.data.subtasks,
+                acceptanceCriteria: response.data.acceptanceCriteria,
+                edgeCases: response.data.edgeCases
+            }));
+            onSave(response.data); // save and update parent
+        } catch (error) {
+            console.error("Failed to expand scope", error);
+        } finally {
+            setIsExpanding(false);
+        }
+    };
 
     // Update formdata when task changes
     useEffect(() => {
@@ -34,7 +72,7 @@ const TaskModal = ({ task, isOpen, onClose, users, onSave, onDelete }) => {
             <div className="glass-card relative z-10 w-full max-w-2xl rounded-2xl shadow-2xl border border-white/10 flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 duration-200">
 
                 {/* Main Content Area */}
-                <div className="p-6 md:w-2/3 border-b md:border-b-0 md:border-r border-white/10">
+                <div className="p-6 md:w-2/3 border-b md:border-b-0 md:border-r border-white/10 max-h-[85vh] overflow-y-auto custom-scrollbar">
                     <div className="flex justify-between items-start mb-6">
                         <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
                             <input
@@ -58,10 +96,76 @@ const TaskModal = ({ task, isOpen, onClose, users, onSave, onDelete }) => {
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
-                            rows={5}
+                            rows={3}
                             className="w-full bg-slate-900/50 border border-white/10 rounded-xl p-3 text-slate-300 focus:outline-none focus:border-neonBlue focus:ring-1 focus:ring-neonBlue transition resize-none custom-scrollbar"
                             placeholder="Add a more detailed description..."
                         />
+                        {(!formData.subtasks || formData.subtasks.length === 0) && (
+                            <button 
+                                onClick={handleExpandScope} 
+                                disabled={isExpanding}
+                                className="mt-2 text-xs bg-fuchsia/20 hover:bg-fuchsia/40 text-fuchsia border border-fuchsia/50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 w-full justify-center"
+                            >
+                                {isExpanding ? "Expanding..." : "✨ Expand Scope (AI)"}
+                            </button>
+                        )}
+                        
+                        {formData.subtasks && formData.subtasks.length > 0 && (
+                            <div className="mt-6 space-y-4">
+                                <div>
+                                    <h4 className="font-semibold text-slate-200 mb-2 border-b border-white/10 pb-1">Subtasks</h4>
+                                    <ul className="list-disc pl-5 text-sm text-slate-300 space-y-1">
+                                        {formData.subtasks.map((item, idx) => <li key={idx}>{item}</li>)}
+                                    </ul>
+                                </div>
+                                
+                                {formData.acceptanceCriteria && formData.acceptanceCriteria.length > 0 && (
+                                    <div>
+                                        <h4 className="font-semibold text-slate-200 mb-2 border-b border-white/10 pb-1">Acceptance Criteria</h4>
+                                        <ul className="list-disc pl-5 text-sm text-slate-300 space-y-1">
+                                            {formData.acceptanceCriteria.map((item, idx) => <li key={idx}>{item}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                                
+                                {formData.edgeCases && formData.edgeCases.length > 0 && (
+                                    <div>
+                                        <h4 className="font-semibold text-rose-300 mb-2 border-b border-white/10 pb-1">Edge Cases / Blockers</h4>
+                                        <ul className="list-disc pl-5 text-sm text-slate-300 space-y-1">
+                                            {formData.edgeCases.map((item, idx) => <li key={idx}>{item}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        
+                        {comments && comments.length > 0 && (
+                            <div className="mt-6 pt-4 border-t border-white/10">
+                                <div className="flex items-center gap-2 text-slate-400 font-semibold uppercase text-sm mb-4">
+                                    <MessageSquare className="w-4 h-4" /> Agent Audit Log
+                                </div>
+                                <div className="space-y-3">
+                                    {comments.map((comment) => (
+                                        <div key={comment.id} className="bg-slate-800/80 rounded-xl p-3 border border-indigo-500/20 shadow-sm relative overflow-hidden group">
+                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-l-xl"></div>
+                                            <div className="flex items-start justify-between gap-2 pl-2">
+                                                <div className="flex-1">
+                                                    <span className="text-xs font-bold text-indigo-400 block mb-1">
+                                                        System Agent
+                                                    </span>
+                                                    <p className="text-sm text-slate-200">
+                                                        {comment.message}
+                                                    </p>
+                                                </div>
+                                                <span className="text-[10px] text-slate-500 whitespace-nowrap whitespace-nowrap shrink-0">
+                                                    {new Date(comment.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

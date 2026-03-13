@@ -15,6 +15,7 @@ import java.util.Optional;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final AiService aiService;
 
     public List<Task> getTasksByBoardId(String boardId) {
         return taskRepository.findByBoardId(boardId);
@@ -39,7 +40,6 @@ public class TaskService {
             task.setDueDate(taskDetails.getDueDate());
             task.setAssignedUser(taskDetails.getAssignedUser());
             task.setStatus(taskDetails.getStatus());
-            // Intentionally not updating boardId or createdAt
             return taskRepository.save(task);
         }).orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId));
     }
@@ -53,5 +53,16 @@ public class TaskService {
 
     public void deleteTask(String taskId) {
         taskRepository.deleteById(taskId);
+    }
+
+    public com.kanbanflow.dto.AiExpansionResponse expandTaskScope(String taskId, String prompt) {
+        return taskRepository.findById(taskId).map(task -> {
+            com.kanbanflow.dto.AiExpansionResponse expanded = aiService.expandScope(prompt);
+            task.setSubtasks(expanded.getSubtasks());
+            task.setAcceptanceCriteria(expanded.getAcceptanceCriteria());
+            task.setEdgeCases(expanded.getEdgeCases());
+            taskRepository.save(task);
+            return expanded;
+        }).orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId));
     }
 }

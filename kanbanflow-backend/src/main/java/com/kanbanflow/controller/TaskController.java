@@ -50,5 +50,14 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{taskId}/expand")
+    public ResponseEntity<com.kanbanflow.dto.AiExpansionResponse> expandTaskScope(@PathVariable String taskId, @RequestBody com.kanbanflow.dto.AiExpansionRequest request) {
+        try {
+            return ResponseEntity.ok(taskService.expandTaskScope(taskId, request.getPrompt()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     public record StatusUpdateRequest(TaskStatus status) {}
 }

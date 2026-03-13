@@ -28,8 +28,8 @@ public class DataSeeder implements CommandLineRunner {
             log.info("No data found. Seeding initial data...");
 
             // 1. Seed Users
-            User user1 = User.builder().name("Yashraj Panda").email("yashraj@example.com").role("Admin").build();
-            User user2 = User.builder().name("Developer").email("dev@example.com").role("Developer").build();
+            User user1 = User.builder().name("Yashraj Panda").email("yashraj@example.com").password("password").role("Admin").build();
+            User user2 = User.builder().name("Developer").email("dev@example.com").password("password").role("Developer").build();
 
             userRepository.saveAll(Arrays.asList(user1, user2));
 

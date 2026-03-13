@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,4 +27,10 @@ public class Task {
     private TaskStatus status;
     private String boardId;
     private LocalDateTime createdAt;
+    
+    private List<String> labels;
+    
+    private List<String> subtasks;
+    private List<String> acceptanceCriteria;
+    private List<String> edgeCases;
 }
